@@ -1,2 +1,2 @@
 # KumaKoding.github.io
-Landing page of KumaKoding.
+Root directory page of KumaKoding.
