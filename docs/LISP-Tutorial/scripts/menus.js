@@ -1,20 +1,11 @@
 const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-const main = Array.from(document.getElementsByClassName("main"))[0];
-
-const h_group = Array.from(document.getElementsByClassName("hints-group"));
-const h_btn = h_group[0]; 
-const h_bar = h_group[1]; 
-
-const content = Array.from(document.getElementsByClassName("content"))[0];
-
-const n_group = Array.from(document.getElementsByClassName("nav-group"));
-const n_bar = n_group[0];
-const n_btn = n_group[1];
-
+const main = document.getElementsByClassName("main")[0];
+const content = document.getElementsByClassName("content")[0];
+const transparent_overlay = document.getElementsByClassName("transparent-overlay")[0];
 
 function screenAspectRatio() {
-    if(document.body.clientHeight > document.body.clientWidth)
+    if(window.innerHeight > window.innerWidth)
     {
         return "vertical";
     }
@@ -22,150 +13,209 @@ function screenAspectRatio() {
     return "horizontal";
 }
 
-let h_open_menu = false;
-let n_open_menu = false;
+const state = {
+    orientation: "horizontal",
+    last_opened: undefined
+};
 
-function h_shrink(transition) {
-    if(transition) {
-        h_bar.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-        h_btn.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-        h_btn.firstElementChild.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-    } else {
-        h_bar.style.transition = "none";
-        h_btn.style.transition = "none";
-        h_btn.firstElementChild.style.transition = "none";
-    }
+const left = {
+    spacer: document.getElementsByClassName("left-spacer")[0],
+    container: document.getElementsByClassName("left-sidebar")[0],
+    button: document.getElementsByClassName("left-button")[0],
+    defaults: {
+        perc_width: 20,
+        rem_min_width: 15,
+        transition: "0.5s",
+    },
+    adjustments: {
+        left_offset: 0,
+        left_space: 0,
+        transition: "none"
+    },
+    open: false
+};
 
-    h_bar.style.width = 0;
-    h_bar.style.minWidth = 0;
-    h_bar.style.padding = 0;
+const right = {
+    spacer: document.getElementsByClassName("right-spacer")[0],
+    container: document.getElementsByClassName("right-sidebar")[0],
+    button: document.getElementsByClassName("right-button")[0],
+    defaults: {
+        perc_width: 33,
+        rem_min_width: 15,
+        transition: "0.5s",
+    },
+    adjustments: {
+        right_offset: 0,
+        right_space: 0,
+        transition: "none"
+    },
+    open: false
+};
 
-    h_btn.firstElementChild.style.transform = "none";
+
+function close_left() {
+    left.open = false;
 }
 
-function h_expand(transition) {
-    const bar_perc = 40;
-    const bar_min = 15;
-
-    if(transition) {
-        h_bar.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-        h_btn.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-        h_btn.firstElementChild.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-    } else {
-        h_bar.style.transition = "none";
-        h_btn.style.transition = "none";
-        h_btn.firstElementChild.style.transition = "none";
-    }
-
-    h_bar.style.width = bar_perc + "%";
-    h_bar.style.minWidth = bar_min + "rem";
-    h_bar.style.padding = "0 0.5rem 0 0.5rem";
-
-    h_btn.firstElementChild.style.transform = "rotate3d(0, 1, 0, 180deg)";
-
-    if(screenAspectRatio() == "vertical")
-    {
-        h_bar.style.position = "absolute";
-
-        if((bar_min * rem) > (main.clientWidth * (bar_perc / 100))) {
-            h_btn.style.transform = "translateX(" + -bar_min + "rem" + ")";
-        } else {
-            h_btn.style.transform = "translateX(" + -main.clientWidth * (bar_perc / 100) + "px)";
-        }
-        n_shrink();
-
-        n_open_menu = false;
-    }
+function close_right() {
+    right.open = false;
 }
 
-function n_shrink(transition) {
-    if(transition) {
-        n_bar.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-        n_btn.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-        n_btn.firstElementChild.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-    } else {
-        n_bar.style.transition = "none";
-        n_btn.style.transition = "none";
-        n_btn.firstElementChild.style.transition = "none";
-    }
-
-    n_bar.style.minWidth = 0;
-    n_bar.style.width = 0;
-    n_bar.style.padding = 0;
-
-    n_btn.firstElementChild.style.transform = "none";
+function open_left() {
+    left.open = true;
+    state.last_opened = "left";
 }
 
-function n_expand(transition) {
-    if(transition) {
-        n_bar.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-        n_btn.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-        n_btn.firstElementChild.style.transition = "0.5s cubic-bezier(0.075, 0.82, 0.165, 1)";
-    } else {
-        n_bar.style.transition = "none";
-        n_btn.style.transition = "none";
-        n_btn.firstElementChild.style.transition = "none";
-    }
-
-    n_bar.style.width = "20%";
-    n_bar.style.minWidth = "15rem";
-
-    n_btn.firstElementChild.style.transform = "rotate3d(0, 1, 0, 180deg)";
-
-    if(screenAspectRatio() == "vertical")
-    {
-        h_shrink(true);
-
-        h_open_menu = false;
-    }
+function open_right() {
+    right.open = true;
+    state.last_opened = "right";
 }
 
-h_btn.addEventListener("click", () => {
-    if(h_open_menu) {
-        h_shrink(true);
-
-        h_open_menu = false;
-    } else {
-        h_expand(true);
-
-        h_open_menu = true;
+transparent_overlay.addEventListener("click", () => {
+    if(state.last_opened == "left") {
+        left.adjustments.transition = left.defaults.transition;
+        close_left();
+    } else if(state.last_opened == "right") {
+        right.adjustments.transition = right.defaults.transition;
+        close_right();
     }
+
+    update();
+})
+
+left.button.addEventListener("click", () => {
+    left.adjustments.transition = left.defaults.transition;
+
+    if(!left.open) {
+        open_left()
+    } else {
+        close_left();
+    }
+
+    update();
 });
 
-n_btn.addEventListener("click", () => {
-    if(n_open_menu) {
-        n_shrink(true);
+right.button.addEventListener("click", () => {
+    right.adjustments.transition = right.defaults.transition;
 
-        n_open_menu = false;
+    if(!right.open) {
+        open_right()
     } else {
-        n_expand(true);
-
-        n_open_menu = true;
-    }
-});
-
-let prevWidth = document.body.clientWidth;
-
-window.addEventListener("resize", () => {
-    if(screenAspectRatio() == "vertical") {
-        if(prevWidth > document.body.clientWidth)
-        {
-            n_open_menu = false;
-            h_open_menu = false;
-
-            h_shrink(true);
-            n_shrink(true);
-        }
+        close_right();
     }
 
-    prevWidth = document.body.clientWidth;
+    update();
 });
 
 window.addEventListener("load", () => {
-    if(screenAspectRatio() == "horizontal") {
-        n_open_menu = true;
+    state.orientation = screenAspectRatio();
+    
+    left.adjustments.transition = "none";
+    right.adjustments.transition = "none";
 
-        n_expand(false);
+    if(state.orientation == "horizontal") {
+        open_left();
+    } else {
+        close_left();
     }
+
+    close_right();
+
+    update();
 });
 
+function adjust_left_spacer() {
+    if(left.open) {
+        if(state.orientation == "horizontal") {
+            if(main.clientWidth * (left.defaults.perc_width / 100) > left.defaults.rem_min_width * rem) {
+                left.adjustments.left_space = left.defaults.perc_width + "%";
+            } else {
+                left.adjustments.left_space = left.defaults.rem_min_width + "rem";
+            }
+        } else {
+            left.adjustments.left_space = 1 + "rem";
+        }
+    } else {
+        left.adjustments.left_space = 1 + "rem";
+    }
+}
+
+function adjust_right_spacer() {
+    if(right.open) {
+        if(state.orientation == "horizontal") {
+            if(main.clientWidth * (right.defaults.perc_width / 100) > right.defaults.rem_min_width * rem) {
+                right.adjustments.right_space = right.defaults.perc_width + "%";
+            } else {
+                right.adjustments.right_space = right.defaults.rem_min_width + "rem";
+            }
+        } else {
+            right.adjustments.right_space = 1 + "rem";
+        }
+    } else {
+        right.adjustments.right_space = 1 + "rem";
+    }
+}
+
+function adjust_left_menu() {
+    if(left.open) {
+        left.adjustments.left_offset = 0;
+    } else {
+        if(main.clientWidth * (left.defaults.perc_width / 100) > left.defaults.rem_min_width * rem) {
+            left.adjustments.left_offset = (-(main.clientWidth * (left.defaults.perc_width / 100)) + (1 * rem)) + "px";
+        } else {
+            left.adjustments.left_offset = (-left.defaults.rem_min_width + 1) + "rem";
+        }
+    }
+}
+
+function adjust_right_menu() {
+    if(right.open) {
+        right.adjustments.right_offset = 0;
+    } else {
+        if(main.clientWidth * (right.defaults.perc_width / 100) > right.defaults.rem_min_width * rem) {
+            right.adjustments.right_offset = (-(main.clientWidth * (right.defaults.perc_width / 100)) + (1 * rem)) + "px";
+        } else {
+            right.adjustments.right_offset = (-right.defaults.rem_min_width + 1) + "rem";
+        }
+    }
+}
+
+function update() {
+    if(state.orientation == "vertical" && (left.open || right.open)) {
+        transparent_overlay.style.display = "block";
+    } else {
+        transparent_overlay.style.display = "none";
+    }
+
+    if(state.orientation == "vertical" && left.open && right.open) {
+        if(state.last_opened == "left") {
+            right.adjustments.transition = right.defaults.transition;
+            close_right();
+        } else {
+            left.adjustments.transition = left.defaults.transition;
+            close_left();
+        }
+    }
+    
+    adjust_left_spacer();
+    adjust_left_menu();
+    
+    adjust_right_spacer();
+    adjust_right_menu();
+    
+    left.container.style.transition = left.adjustments.transition;
+    left.container.style.left = left.adjustments.left_offset;
+    left.spacer.style.width = left.adjustments.left_space;
+
+    right.container.style.transition = right.adjustments.transition;
+    right.container.style.right = right.adjustments.right_offset;
+    right.spacer.style.width = right.adjustments.right_space;
+}
+
+window.addEventListener("resize", () => {
+    state.orientation = screenAspectRatio();
+
+    left.adjustments.transition = "none";
+    right.adjustments.transition = "none";
+    update();
+});
